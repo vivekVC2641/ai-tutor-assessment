@@ -1,0 +1,31 @@
+[
+  {
+    "submission_id": "sub_3db0de677d62",
+    "student_id": "11",
+    "student_name": "vivek",
+    "answers_by_qid": {
+      "q_6adf3b8b46": "Newton’s laws say that forces create motion, but objects actually keep speeding up forever even without any force acting on them. They also explain that friction adds energy to moving objects, which is why things eventually slow down and stop in daily life."
+    },
+    "submitted_at": "2026-04-09T06:20:49.406125+00:00"
+  },
+  {
+    "submission_id": "sub_73c4a36aa17c",
+    "student_id": "sss223",
+    "student_name": "ranab",
+    "answers_by_qid": {
+      "q_6adf3b8b46": "sadsadsdasadsdasda",
+      "q_e2210c33ca": "dfjbasjlasd kajsdlldsasa"
+    },
+    "submitted_at": "2026-04-09T06:35:55.935232+00:00"
+  },
+  {
+    "submission_id": "sub_444b2e3a3809",
+    "student_id": "11",
+    "student_name": "vv",
+    "answers_by_qid": {
+      "q_6adf3b8b46": "adsasd",
+      "q_e2210c33ca": "dasdasd"
+    },
+    "submitted_at": "2026-04-09T07:07:35.295324+00:00"
+  }
+]

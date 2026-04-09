@@ -23,10 +23,20 @@ from orchestrator.indexing import ingest_and_index
 from orchestrator.pipeline import run_pipeline
 from rag.retriever import INDEX_MISSING_ERROR
 from uuid import uuid4
+from agents.evaluator_agent import evaluate_answer
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
 
+
+#
+# NOTE ABOUT API USAGE (Assessment vs Streamlit portals):
+# - Use `POST /ask` when you want a direct tutor answer for a question (answer generation).
+# - Use `POST /answer` when you want evaluation:
+#   - Default: full assessment flow (RAG answer + evaluator score + stored evaluation_id).
+#   - If `ideal_answer` is provided: evaluate student vs that ideal answer directly (still returns FullEvaluationResponse + stored evaluation_id).
+# - Use `POST /review` to apply Human-in-the-Loop approval/override on an `/answer` evaluation (stores AI vs human decisions).
+#
 
 @router.post("/ingest", response_model=IngestResponse)
 def ingest_document(payload: IngestRequest) -> IngestResponse:
@@ -73,14 +83,37 @@ def ask_question(payload: AskRequest) -> AskResponse:
 def evaluate_student_answer(payload: AnswerRequest) -> FullEvaluationResponse:
     try:
         logger.info("Answer request received. question=%s", payload.question)
-        result = run_pipeline(question=payload.question, student_answer=payload.student_answer)
-        # Minimal output required by user: score + feedback.
-        # We still compute confidence internally, but we only surface status for UI.
-        ai_score = float(result.evaluation.score) if result.evaluation else 0.0
-        feedback = str(result.evaluation.feedback) if result.evaluation else "Not enough grounded context to evaluate."
-        confidence = float(result.evaluation.confidence) if result.evaluation else 0.0
+        # Two modes (same endpoint name as assessment spec):
+        # 1) Default (ideal_answer not provided): run full RAG pipeline and evaluate grounded to retrieved context.
+        # 2) Teacher-ideal mode (ideal_answer provided): evaluate student answer directly vs teacher-provided ideal answer.
+        if payload.ideal_answer and payload.ideal_answer.strip():
+            eval_result = evaluate_answer(
+                question=payload.question,
+                context=f"Ideal answer:\n{payload.ideal_answer.strip()}",
+                student_answer=payload.student_answer,
+            )
+            ai_score = float(eval_result.get("score", 0.0))
+            feedback = str(eval_result.get("feedback", "Improve conceptual accuracy and depth."))
+            confidence = float(eval_result.get("confidence", 0.0))
+            ai_answer = payload.ideal_answer.strip()
+            sources: list[str] = []
+            used_chunks: list[dict] = []
+        else:
+            result = run_pipeline(question=payload.question, student_answer=payload.student_answer)
+            ai_score = float(result.evaluation.score) if result.evaluation else 0.0
+            feedback = (
+                str(result.evaluation.feedback)
+                if result.evaluation
+                else "Not enough grounded context to evaluate."
+            )
+            confidence = float(result.evaluation.confidence) if result.evaluation else 0.0
+            ai_answer = result.tutor_answer
+            sources = result.sources
+            used_chunks = result.used_chunks
+
+        # We compute confidence internally; we only surface status for UI.
         status = "pending_review" if confidence < settings.confidence_threshold else "finalized"
-        clipped_score = max(0.0, min(1.0, ai_score))
+        clipped_score = max(0.0, min(1.0, float(ai_score)))
 
         response = FullEvaluationResponse(
             evaluation_id="",
@@ -88,9 +121,9 @@ def evaluate_student_answer(payload: AnswerRequest) -> FullEvaluationResponse:
             question_id=f"q_{uuid4().hex[:8]}",
             question=payload.question,
             student_answer=payload.student_answer,
-            ai_answer=result.tutor_answer,
-            sources=result.sources,
-            used_chunks=result.used_chunks,
+            ai_answer=ai_answer,
+            sources=sources,
+            used_chunks=used_chunks,
             ai_score=clipped_score,
             final_score=clipped_score,
             feedback=feedback,
@@ -111,7 +144,6 @@ def evaluate_student_answer(payload: AnswerRequest) -> FullEvaluationResponse:
     except Exception as exc:
         logger.exception("Answer failed. reason=%s", exc)
         raise HTTPException(status_code=500, detail=str(exc)) from exc
-
 
 @router.post("/review", response_model=FullEvaluationResponse)
 def review_with_human_override(payload: ReviewRequest) -> FullEvaluationResponse:

@@ -10,41 +10,17 @@ This project is a production-style educational assistant built for an AI assessm
 
 ## What Is Implemented
 
-- **RAG Pipeline**
-  - Document ingestion with `docling` (markdown export)
-  - Two-stage chunking:
-    - structure-aware section split (markdown headers)
-    - token-window split (`512` chunk size, `50` overlap)
-  - Metadata enrichment per chunk (`source`, `section`, `chunk_id`, `content_type`)
-  - FAISS vector search (`IndexFlatL2`)
-
-- **Agentic Orchestration**
-  - LangGraph pipeline:
-    - `retrieve -> tutor -> guardrail -> (optional) evaluator`
-  - Evaluator runs when student answer is present and guardrail passes
-
-- **Tutor + Evaluator**
-  - Tutor returns grounded answer, sources, confidence, follow-up hint
-  - Evaluator returns score, confidence, and feedback
-  - JSON parsing hardening with retry logic
-
-- **Human-in-the-Loop (HITL)**
-  - `/answer` creates AI evaluation record
-  - `/review` supports:
-    - `approve` (keep AI score)
-    - `override` (human score/feedback)
-  - Review stats endpoint for analytics
-
-- **API + UI**
-  - FastAPI backend for ingestion, asking, evaluation, and review
-  - Streamlit app for end-to-end demo flow
+- RAG with ingestion, chunking, embeddings, and FAISS retrieval.
+- Multi-agent flow with tutor, evaluator, and orchestration pipeline.
+- HITL review with approve/override and stored review history.
+- Streamlit portals for Teacher, Student, and Results.
 
 ## Tech Stack Used
 
 - FastAPI
 - LangGraph
 - FAISS (`faiss-cpu`)
-- OpenAI/Azure OpenAI client
+- OpenAI / Azure OpenAI
 - Docling
 - Streamlit
 - Pydantic v2
@@ -52,122 +28,63 @@ This project is a production-style educational assistant built for an AI assessm
 ## Project Structure
 
 ```text
-mini_ai_tutor/
+ai-tutor-assessment/
 ├── main.py
 ├── routes/api.py
-├── orchestrator/
-│   ├── pipeline.py
-│   └── indexing.py
-├── ingestion/docling_ingestor.py
-├── rag/
-│   ├── chunker.py
-│   ├── retriever.py
-│   └── vector_store.py
+├── streamlit_app.py
 ├── agents/
-│   ├── tutor_agent.py
-│   ├── evaluator_agent.py
-│   └── guardrail_agent.py
+├── orchestrator/
+├── rag/
+├── ingestion/
+├── hitl/
 ├── app/
-│   ├── config.py
-│   └── prompt_templates.py
-├── hitl/review_store.py
 ├── storage/
-│   ├── faiss_index/
-│   ├── evaluations.json
-│   └── reviews.json
-└── streamlit_app.py
+└── README.md
 ```
 
 ## Setup
 
-1. Install dependencies:
-
-```bash
-pip install -r requirements.txt
-```
-
-2. Create env file:
-
-```bash
-cp .env.example .env
-```
-
-3. Configure `.env`.
-
-### Azure OpenAI (recommended for this project)
-
-```env
-PROVIDER=azure
-AZURE_OPENAI_API_KEY=...
-AZURE_OPENAI_ENDPOINT=https://<resource>.openai.azure.com/
-AZURE_OPENAI_API_VERSION=2024-02-01
-AZURE_OPENAI_CHAT_DEPLOYMENT=<your_chat_deployment>
-AZURE_OPENAI_EMBEDDING_DEPLOYMENT=<your_embedding_deployment>
-```
-
-Chunking settings:
-
-```env
-CHUNK_SIZE_TOKENS=512
-CHUNK_OVERLAP_TOKENS=50
-```
-
-4. Run API:
-
-```bash
-uvicorn main:app --reload
-```
-
-5. Optional Streamlit demo:
-
-```bash
-streamlit run streamlit_app.py
-```
+1. `pip install -r requirements.txt`
+2. `cp .env.example .env` and set API keys in `.env`
+3. Run API: `uvicorn main:app --reload`
+4. Run UI: `streamlit run streamlit_app.py`
 
 ## API Endpoints
 
-- `POST /ingest`
-  - body: `{"file_path":"<absolute-or-relative-path>"}`
-  - output: file, sections, chunks, index status
-  - supported input files:
-    - `.pdf`
-    - `.docx`
-    - `.txt`
-    - `.md`
-  - note: ingestion uses `docling` first; if parsing fails, system falls back to plain text read.
+- `POST /ingest` - Ingest a document file path and update the vector index.
+- `POST /ask` - Generate tutor answer for a question using retrieved context.
+- `POST /answer` - Evaluate a student answer and create evaluation record (supports optional `ideal_answer`).
+- `POST /review` - Approve or override an evaluation by `evaluation_id`.
+- `GET /review/stats` - Return review analytics summary.
+- `GET /status` - Return provider and index readiness state.
+- `GET /health` - Basic health check.
 
-- `POST /ask`
-  - body: `{"question":"What is ...?"}`
-  - output: tutor answer grounded on retrieved chunks
+## Normal Flow (Teacher → Student → Result)
 
-- `POST /answer`
-  - body: `{"question":"...", "student_answer":"...", "session_id":"sess_123"}`
-  - output: AI evaluation payload (`ai_score`, `feedback`, `status`, etc.)
-
-- `POST /review`
-  - approve flow:
-    - `{"evaluation_id":"eval_xxx", "action":"approve"}`
-  - override flow:
-    - `{"evaluation_id":"eval_xxx", "action":"override", "human_score":0.68, "reviewer_id":"teacher-1", "reason_for_override":"...", "feedback":"..."}`
-
-- `GET /review/stats`
-  - review analytics
-
-- `GET /status`
-  - provider + index readiness
-
-- `GET /health`
-  - health check
+```text
+Teacher Portal
+  ├─ Ingest data (/ingest)
+  ├─ Create question bank (/ask)
+  ├─ Evaluate student answers (/answer)
+  └─ Approve/override review (/review)
+            │
+            v
+Student Portal
+  ├─ View teacher questions
+  └─ Submit answers
+            │
+            v
+Result Page
+  └─ Search by Student ID → show answer + score/10 + feedback + overall score
+```
 
 ## Rebuild Index (After Chunking Changes)
-
-Delete old FAISS files and ingest again:
 
 ```bash
 rm -f storage/faiss_index/index.faiss storage/faiss_index/metadata.json
 ```
 
-Then ingest files (example):
+Re-ingest files after cleanup (example):
 
 ```bash
 curl -X POST "http://127.0.0.1:8000/ingest" \

@@ -33,6 +33,9 @@ class AnswerRequest(BaseModel):
     question: str = Field(min_length=3)
     student_answer: str = Field(min_length=1)
     session_id: str | None = None
+    # Optional: when provided, `/answer` will evaluate student vs this ideal answer directly.
+    # This is useful for a "teacher-generated answer" evaluation flow while keeping the assessment API name `/answer`.
+    ideal_answer: str | None = None
 
 
 class EvaluationResponse(BaseModel):

@@ -1,0 +1,92 @@
+[
+  {
+    "report_id": "rep_b9f0f1a5817a",
+    "submission_id": "sub_3db0de677d62",
+    "student_id": "11",
+    "teacher_id": "teacher-1",
+    "created_at": "2026-04-09T06:20:49.406125+00:00",
+    "evaluations_by_qid": {
+      "q_6adf3b8b46": {
+        "ai_score_out_of_10": 1.0,
+        "score_out_of_10": 3.0,
+        "feedback_points": [
+          "The answer is mostly incorrect.",
+          "Newton's laws do not state that objects keep speeding up forever without a force; they explain that objects stay at rest or move at constant velocity unless acted upon by a force.",
+          "Additionally, friction does not add energy to moving objects; it opposes motion and removes kinetic energy, causing objects to stop.",
+          "Review the correct explanation of Newton's laws and the role of friction in daily life."
+        ],
+        "confidence_0_1": 0.95,
+        "override_applied": true
+      }
+    },
+    "final_submitted": true,
+    "total_out_of_10": 3.0,
+    "updated_at": "2026-04-09T06:30:24.645417+00:00"
+  },
+  {
+    "report_id": "rep_a78a5d227c2a",
+    "submission_id": "sub_73c4a36aa17c",
+    "student_id": "sss223",
+    "teacher_id": "teacher-1",
+    "created_at": "2026-04-09T06:35:55.935232+00:00",
+    "evaluations_by_qid": {
+      "q_6adf3b8b46": {
+        "ai_score_out_of_10": 0.0,
+        "score_out_of_10": 0.0,
+        "feedback_points": [
+          "The answer is incomprehensible and does not address the question or context.",
+          "Please provide a clear and relevant explanation of Newton's laws and the importance of friction in daily life."
+        ],
+        "confidence_0_1": 1.0,
+        "override_applied": false
+      },
+      "q_e2210c33ca": {
+        "ai_score_out_of_10": 0.0,
+        "score_out_of_10": 0.0,
+        "feedback_points": [
+          "The answer is incomprehensible and does not address the question or context.",
+          "Please provide a clear and relevant response based on the provided context."
+        ],
+        "confidence_0_1": 1.0,
+        "override_applied": false
+      }
+    },
+    "final_submitted": true,
+    "total_out_of_10": 0.0,
+    "updated_at": "2026-04-09T06:36:49.403224+00:00"
+  },
+  {
+    "report_id": "rep_8d4f9cddae18",
+    "submission_id": "sub_444b2e3a3809",
+    "student_id": "11",
+    "teacher_id": "teacher-1",
+    "created_at": "2026-04-09T07:07:35.295324+00:00",
+    "evaluations_by_qid": {
+      "q_6adf3b8b46": {
+        "ai_score_out_of_10": 0.0,
+        "score_out_of_10": 0.0,
+        "feedback_points": [
+          "The answer provided is incomprehensible and does not address the question.",
+          "Please provide a clear and relevant explanation of Newton's laws and the importance of friction in daily life based on the context."
+        ],
+        "confidence_0_1": 0.0,
+        "override_applied": false,
+        "evaluation_id": "eval_421294bcd253"
+      },
+      "q_e2210c33ca": {
+        "ai_score_out_of_10": 0.0,
+        "score_out_of_10": 0.0,
+        "feedback_points": [
+          "The answer provided is incomprehensible and does not address the question or context.",
+          "Please provide a clear and relevant response based on the context."
+        ],
+        "confidence_0_1": 0.0,
+        "override_applied": false,
+        "evaluation_id": "eval_c4f4789f2d28"
+      }
+    },
+    "final_submitted": true,
+    "total_out_of_10": 0.0,
+    "updated_at": "2026-04-09T07:08:09.731237+00:00"
+  }
+]
