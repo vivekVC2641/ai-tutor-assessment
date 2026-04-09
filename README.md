@@ -91,3 +91,5 @@ curl -X POST "http://127.0.0.1:8000/ingest" \
   -H "Content-Type: application/json" \
   -d '{"file_path":"/absolute/path/to/file.md"}'
 ```
+
+For future enhancement, we can extend this system with advanced specialized agents; see [`README_ENHANCEMENT_ROADMAP.md`](README_ENHANCEMENT_ROADMAP.md).
