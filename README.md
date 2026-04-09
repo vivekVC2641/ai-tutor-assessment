@@ -25,6 +25,10 @@ This project is a production-style educational assistant built for an AI assessm
 - Streamlit
 - Pydantic v2
 
+## Demo Video
+
+- [Watch the demo on Loom](https://www.loom.com/share/751c6e85f22c44aab961bc4f7a89b7c0)
+
 ## Project Structure
 
 ```text
