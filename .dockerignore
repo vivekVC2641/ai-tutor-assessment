@@ -1,0 +1,33 @@
+# Git and secrets
+.git
+.gitignore
+.env
+.env.*
+
+# Python
+__pycache__
+*.py[cod]
+*.pyc
+*.pyo
+.pytest_cache
+.mypy_cache
+.ruff_cache
+.venv
+venv
+env
+
+# IDE / OS
+.idea
+.vscode
+.DS_Store
+
+# Align with .gitignore: runtime & local-only
+logs
+knowledge_base
+tests
+storage/faiss_index
+storage/evaluations.json
+storage/reviews.json
+
+# Local compose overrides (not part of image)
+docker-compose.override.yml

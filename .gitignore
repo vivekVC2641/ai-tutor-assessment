@@ -31,8 +31,15 @@ dist/
 *.egg-info/
 
 # Runtime files
-logs/*.log
+logs/
 storage/faiss_index/
 storage/evaluations.json
 storage/reviews.json
+
+# Local / optional content (not pushed)
+knowledge_base/
+tests/
+
+# Docker (local overrides only; Dockerfile & docker-compose.yml stay in repo)
+docker-compose.override.yml
 

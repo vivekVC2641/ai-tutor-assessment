@@ -1,0 +1,16 @@
+version: "3.9"
+
+services:
+  mini-ai-tutor:
+    build: .
+    container_name: mini-ai-tutor
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    volumes:
+      - ./storage:/app/storage
+      - ./logs:/app/logs
+      # Mount local docs (folder is gitignored; create on host or use override file)
+      - ./knowledge_base:/app/knowledge_base
+    restart: unless-stopped
